@@ -3,7 +3,7 @@ package Model;
 import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Task implements Serializable {
+public class TodoList implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	private int id;
@@ -11,7 +11,7 @@ public class Task implements Serializable {
 	private LocalDate dueDate;
 	private boolean completed;
 
-	public Task(String title, String description, LocalDate dueDate, boolean completed) {
+	public TodoList(String title, String description, LocalDate dueDate, boolean completed) {
 		LocalDate today = LocalDate.now();
 		this.title = title;
 		this.description = description;
