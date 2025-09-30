@@ -11,6 +11,7 @@ public class TodoListController implements ActionListener {
 	private ManageTodoList model;
 
 	public TodoListController(TodoListView view) {
+		this.model = new ManageTodoList();
 		this.view = view;
 	}
 
@@ -31,13 +32,13 @@ public class TodoListController implements ActionListener {
 		} else if (cmd.equals("Hoàn thành")) {
 			this.view.MarkTodoComplete();
 		} else if (cmd.equals("Tìm")) {
-
+			this.view.SearchTodo();
 		} else if (cmd.equals("Hủy")) {
-
+			this.view.ResetSearchValue(true);
 		} else if (cmd.equals("Open")) {
-
+			this.view.HandleOpenFile();
 		} else if (cmd.equals("Save")) {
-
+			this.view.HandleSaveFile();
 		} else if (cmd.equals("Exit")) {
 			this.view.ExitProgram();
 		} else if (cmd.equals("About me")) {

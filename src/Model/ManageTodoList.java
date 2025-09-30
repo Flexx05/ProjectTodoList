@@ -5,10 +5,20 @@ import java.util.ArrayList;
 public class ManageTodoList {
 	private ArrayList<TodoList> listTodo;
 	private String choose;
+	private String fileName;
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
 	public ManageTodoList() {
 		this.listTodo = new ArrayList<>();
 		this.choose = "";
+		this.fileName = "";
 
 	}
 

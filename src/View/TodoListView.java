@@ -2,11 +2,20 @@ package View;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -114,6 +123,9 @@ public class TodoListView extends JFrame {
 		contentPane.add(labelSearchStatus);
 
 		comboBoxStatus = new JComboBox<String>();
+		comboBoxStatus.addItem("");
+		comboBoxStatus.addItem("Đã hoàn thành");
+		comboBoxStatus.addItem("Chưa hoàn thành");
 		comboBoxStatus.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		comboBoxStatus.setBounds(380, 33, 80, 24);
 		contentPane.add(comboBoxStatus);
@@ -351,6 +363,126 @@ public class TodoListView extends JFrame {
 		if (choose == JOptionPane.YES_OPTION) {
 			this.list.RemoveTodo(todo);
 			model.removeRow(rowSelected);
+		}
+	}
+
+	public void SearchTodo() {
+		this.ResetSearchValue(false);
+		String titleSearch = this.textFieldSearchTitle.getText();
+		String statusSearch = this.comboBoxStatus.getSelectedItem() + "";
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		int rowCount = model.getRowCount();
+		Set<Integer> rowDeleted = new TreeSet<Integer>();
+
+		if (titleSearch.length() > 0) {
+			for (int i = 0; i < rowCount; i++) {
+				String title = model.getValueAt(i, 1) + "";
+				int id = Integer.valueOf(model.getValueAt(i, 0) + "");
+				if (!title.equals(titleSearch)) {
+					rowDeleted.add(id);
+				}
+			}
+		}
+		if (statusSearch.length() > 0) {
+			for (int i = 0; i < rowCount; i++) {
+				String status = model.getValueAt(i, 4) + "";
+				int id = Integer.valueOf(model.getValueAt(i, 0) + "");
+				if (!status.equals(statusSearch)) {
+					rowDeleted.add(id);
+				}
+			}
+		}
+		for (Integer id : rowDeleted) {
+			rowCount = model.getRowCount();
+			for (int i = 0; i < rowCount; i++) {
+				String idSelected = model.getValueAt(i, 0) + "";
+				if (idSelected.equals(id.toString())) {
+					try {
+						model.removeRow(i);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				break;
+			}
+		}
+	}
+
+	public void ResetSearchValue(boolean resetForm) {
+		if (resetForm) {
+			this.textFieldSearchTitle.setText("");
+			this.comboBoxStatus.setSelectedIndex(0);
+		}
+		while (true) {
+			DefaultTableModel model = (DefaultTableModel) table.getModel();
+			int rowCount = model.getRowCount();
+			if (rowCount == 0) {
+				break;
+			} else {
+				model.removeRow(0);
+			}
+		}
+		for (TodoList todo : this.list.getListTodo()) {
+			this.AddOneTodo(todo);
+		}
+
+	}
+
+	public void HandleOpenFile() {
+		JFileChooser fc = new JFileChooser();
+		int returnVal = fc.showOpenDialog(this);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			Open(file);
+			ResetSearchValue(true);
+		}
+	}
+
+	private void Open(File file) {
+		ArrayList<TodoList> listTodo = new ArrayList<>();
+		try {
+			this.list.setFileName(file.getAbsolutePath());
+			FileInputStream fis = new FileInputStream(file);
+			ObjectInputStream ois = new ObjectInputStream(fis);
+			while (true) {
+				try {
+					TodoList todo = (TodoList) ois.readObject();
+					listTodo.add(todo);
+				} catch (Exception e) {
+					break;
+				}
+			}
+			ois.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		this.list.setListTodo(listTodo);
+	}
+
+	public void HandleSaveFile() {
+		if (this.list.getFileName().length() > 0) {
+			Save(this.list.getFileName());
+		} else {
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
+				Save(file.getAbsolutePath());
+			}
+		}
+	}
+
+	private void Save(String path) {
+		try {
+			this.list.setFileName(path);
+			FileOutputStream fos = new FileOutputStream(path);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			for (TodoList todo : this.list.getListTodo()) {
+				oos.writeObject(todo);
+			}
+			JOptionPane.showMessageDialog(this, "Lưu thành công");
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
