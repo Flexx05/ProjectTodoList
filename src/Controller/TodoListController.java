@@ -18,18 +18,18 @@ public class TodoListController implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String cmd = e.getActionCommand();
 		if (cmd.equals("Lưu")) {
-
+			this.view.CreateTodo();
 		} else if (cmd.equals("Reset") || cmd.equals("Thêm mới")) {
 			this.view.resetForm();
 			if (cmd.equals("Thêm mới")) {
 				this.model.setChoose(cmd);
 			}
 		} else if (cmd.equals("Chỉnh sửa")) {
-
+			this.view.GetTodoById();
 		} else if (cmd.equals("Xóa bỏ")) {
-
+			this.view.DeleteTodo();
 		} else if (cmd.equals("Hoàn thành")) {
-
+			this.view.MarkTodoComplete();
 		} else if (cmd.equals("Tìm")) {
 
 		} else if (cmd.equals("Hủy")) {

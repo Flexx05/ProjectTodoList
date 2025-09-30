@@ -40,4 +40,13 @@ public class ManageTodoList {
 		this.listTodo.remove(todo);
 		this.listTodo.add(todo);
 	}
+
+	public boolean checkId(int id) {
+		for (TodoList todoList : listTodo) {
+			if (todoList.getId() == id) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

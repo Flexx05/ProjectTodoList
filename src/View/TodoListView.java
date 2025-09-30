@@ -2,6 +2,8 @@ package View;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -21,10 +23,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import Controller.TodoListController;
+import Model.ManageTodoList;
+import Model.TodoList;
 
 public class TodoListView extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	private ManageTodoList list;
 	private JPanel contentPane;
 	private JTable table;
 	private JTextField textFieldSearchTitle;
@@ -33,6 +38,7 @@ public class TodoListView extends JFrame {
 	private JComboBox<String> comboBoxStatus;
 	private JTextArea textAreaDescription;
 	private JTextField textFieldId;
+	private DateTimeFormatter formatDate = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
 	/**
 	 * Create the frame.
@@ -40,6 +46,7 @@ public class TodoListView extends JFrame {
 	public TodoListView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 616, 736);
+		this.list = new ManageTodoList();
 
 		TodoListController ac = new TodoListController(this);
 
@@ -254,6 +261,97 @@ public class TodoListView extends JFrame {
 
 	public void ShowAboutMe() {
 		JOptionPane.showMessageDialog(this, "Chương trình quản lý nhiệm vụ v2.0\nĐược tạo bởi Mạnh Linh");
+	}
+
+	public void CreateTodo() {
+		int id = Integer.valueOf(this.textFieldId.getText());
+		String title = this.textFieldTitle.getText();
+		String decription = this.textAreaDescription.getText();
+		LocalDate dueDate = LocalDate.parse(this.textFieldDueDate.getText(), formatDate);
+
+		TodoList todo = new TodoList(id, title, decription, dueDate, false);
+
+		this.AddOrEditTodo(todo);
+	}
+
+	private void AddOrEditTodo(TodoList todo) {
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		if (!this.list.checkId(todo.getId())) {
+			this.list.CreateTodo(todo);
+			this.AddOneTodo(todo);
+		} else {
+			this.list.UpdateTodo(todo);
+			int rowCount = model.getRowCount();
+			for (int i = 0; i < rowCount; i++) {
+				int id = Integer.valueOf(model.getValueAt(i, 0) + "");
+				if (id == todo.getId()) {
+					model.setValueAt(todo.getId(), i, 0);
+					model.setValueAt(todo.getTitle(), i, 1);
+					model.setValueAt(todo.getDescription(), i, 2);
+					model.setValueAt(todo.getDueDate().format(formatDate), i, 3);
+					model.setValueAt(todo.isCompleted() ? "Đã hoàn thành" : "Chưa hoàn thành", i, 4);
+				}
+			}
+		}
+		this.resetForm();
+	}
+
+	private void AddOneTodo(TodoList todo) {
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		model.addRow(new Object[] { todo.getId(), todo.getTitle(), todo.getDescription(),
+				todo.getDueDate().format(formatDate), todo.isCompleted() ? "Đã hoàn thành" : "Chưa hoàn thành" });
+	}
+
+	private TodoList ShowTodoSelected() {
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		int rowSelected = table.getSelectedRow();
+		int id = Integer.valueOf(model.getValueAt(rowSelected, 0) + "");
+		String title = model.getValueAt(rowSelected, 1) + "";
+		String description = model.getValueAt(rowSelected, 2) + "";
+		LocalDate dueDate = LocalDate.parse(model.getValueAt(rowSelected, 3) + "", formatDate);
+		boolean completed = model.getValueAt(rowSelected, 4).equals("Đã hoàn thành");
+
+		TodoList todo = new TodoList(id, title, description, dueDate, completed);
+		return todo;
+	}
+
+	public void GetTodoById() {
+		TodoList todo = ShowTodoSelected();
+		this.textFieldId.setText(todo.getId() + "");
+		this.textFieldTitle.setText(todo.getTitle());
+		this.textAreaDescription.setText(todo.getDescription());
+		this.textFieldDueDate.setText(todo.getDueDate().format(formatDate));
+
+	}
+
+	public void MarkTodoComplete() {
+		TodoList todo = ShowTodoSelected();
+		if (todo.isCompleted()) {
+			JOptionPane.showMessageDialog(this, "Công việc này bạn đã hoàn thành");
+		} else {
+			this.GetTodoById();
+
+			int choose = JOptionPane.showConfirmDialog(this, "Đánh dấu công việc này đã hoàn thành?", "",
+					JOptionPane.YES_NO_OPTION);
+			if (choose == JOptionPane.YES_OPTION) {
+				todo.setCompleted(true);
+				this.AddOrEditTodo(todo);
+			} else {
+				this.resetForm();
+			}
+		}
+	}
+
+	public void DeleteTodo() {
+		TodoList todo = ShowTodoSelected();
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		int rowSelected = table.getSelectedRow();
+		int choose = JOptionPane.showConfirmDialog(this, "Xóa công việc này khỏi danh sách?", "",
+				JOptionPane.YES_NO_OPTION);
+		if (choose == JOptionPane.YES_OPTION) {
+			this.list.RemoveTodo(todo);
+			model.removeRow(rowSelected);
+		}
 	}
 
 }
