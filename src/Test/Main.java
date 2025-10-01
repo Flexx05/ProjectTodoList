@@ -9,8 +9,7 @@ public class Main {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TodoListView frame = new TodoListView();
-					frame.setVisible(true);
+					new TodoListView();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
