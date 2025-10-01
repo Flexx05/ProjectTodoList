@@ -2,6 +2,8 @@ package View;
 
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -28,6 +30,7 @@ import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
@@ -54,7 +57,7 @@ public class TodoListView extends JFrame {
 	 */
 	public TodoListView() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 616, 736);
+		setBounds(100, 100, 616, 755);
 		this.list = new ManageTodoList();
 
 		TodoListController ac = new TodoListController(this);
@@ -66,12 +69,14 @@ public class TodoListView extends JFrame {
 		mnNewMenu.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		menuBar.add(mnNewMenu);
 
-		JMenuItem menuOpen = new JMenuItem("Open");
+		JMenuItem menuOpen = new JMenuItem("Open", KeyEvent.VK_O);
+		menuOpen.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK));
 		menuOpen.addActionListener(ac);
 		menuOpen.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		mnNewMenu.add(menuOpen);
 
-		JMenuItem menuSave = new JMenuItem("Save");
+		JMenuItem menuSave = new JMenuItem("Save", KeyEvent.VK_S);
+		menuSave.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
 		menuSave.addActionListener(ac);
 		menuSave.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		mnNewMenu.add(menuSave);
@@ -79,7 +84,8 @@ public class TodoListView extends JFrame {
 		JSeparator separator = new JSeparator();
 		mnNewMenu.add(separator);
 
-		JMenuItem menuExit = new JMenuItem("Exit");
+		JMenuItem menuExit = new JMenuItem("Exit", KeyEvent.VK_F4);
+		menuExit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, InputEvent.ALT_DOWN_MASK));
 		menuExit.addActionListener(ac);
 		menuExit.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		mnNewMenu.add(menuExit);
@@ -88,7 +94,8 @@ public class TodoListView extends JFrame {
 		mnNewMenu_1.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		menuBar.add(mnNewMenu_1);
 
-		JMenuItem menuAboutMe = new JMenuItem("About me");
+		JMenuItem menuAboutMe = new JMenuItem("About me", KeyEvent.VK_M);
+		menuAboutMe.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, InputEvent.CTRL_DOWN_MASK));
 		menuAboutMe.addActionListener(ac);
 		menuAboutMe.setFont(new Font("Segoe UI", Font.PLAIN, 15));
 		mnNewMenu_1.add(menuAboutMe);
@@ -206,32 +213,38 @@ public class TodoListView extends JFrame {
 		panel.setLayout(new GridLayout(1, 0, 50, 0));
 
 		JButton btnAdd = new JButton("Thêm mới");
+		btnAdd.setMnemonic(KeyEvent.VK_T);
 		btnAdd.addActionListener(ac);
 		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		panel.add(btnAdd);
 
 		JButton btnEdit = new JButton("Chỉnh sửa");
+		btnEdit.setMnemonic(KeyEvent.VK_C);
 		btnEdit.addActionListener(ac);
 		btnEdit.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		panel.add(btnEdit);
 
 		JButton btnDelete = new JButton("Xóa bỏ");
+		btnDelete.setMnemonic(KeyEvent.VK_X);
 		btnDelete.addActionListener(ac);
 		btnDelete.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		panel.add(btnDelete);
 
 		JButton btnComplete = new JButton("Hoàn thành");
+		btnComplete.setMnemonic(KeyEvent.VK_H);
 		btnComplete.addActionListener(ac);
 		btnComplete.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		panel.add(btnComplete);
 
 		JButton btnSave = new JButton("Lưu");
+		btnSave.setMnemonic(KeyEvent.VK_ENTER);
 		btnSave.addActionListener(ac);
 		btnSave.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		btnSave.setBounds(446, 575, 60, 24);
 		contentPane.add(btnSave);
 
 		JButton btnReset = new JButton("Reset");
+		btnReset.setMnemonic(KeyEvent.VK_R);
 		btnReset.addActionListener(ac);
 		btnReset.setFont(new Font("Tahoma", Font.PLAIN, 13));
 		btnReset.setBounds(516, 575, 76, 24);
@@ -272,14 +285,40 @@ public class TodoListView extends JFrame {
 	}
 
 	public void ShowAboutMe() {
-		JOptionPane.showMessageDialog(this, "Chương trình quản lý nhiệm vụ v2.0\nĐược tạo bởi Mạnh Linh");
+		JOptionPane.showMessageDialog(this, "Chương trình quản lý công việc v2.0\nĐược tạo bởi Mạnh Linh");
 	}
 
 	public void CreateTodo() {
-		int id = Integer.valueOf(this.textFieldId.getText());
+		int id = 0;
 		String title = this.textFieldTitle.getText();
 		String decription = this.textAreaDescription.getText();
-		LocalDate dueDate = LocalDate.parse(this.textFieldDueDate.getText(), formatDate);
+		LocalDate dueDate;
+		if (this.textFieldId.getText().trim().equals("") || this.textFieldTitle.getText().trim().equals("")
+				|| this.textAreaDescription.getText().trim().equals("")
+				|| this.textFieldDueDate.getText().trim().equals("")) {
+			JOptionPane.showMessageDialog(this, "Không được để trống các ô nhập thông tin");
+			return;
+		}
+		try {
+			dueDate = LocalDate.parse(this.textFieldDueDate.getText(), formatDate);
+			if (dueDate.isBefore(LocalDate.now())) {
+				JOptionPane.showMessageDialog(this, "Ngày hết hạn phải là ngày trong tương lai");
+				return;
+			}
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(this, "Sai định dạng ngày");
+			return;
+		}
+		try {
+			id = Integer.valueOf(this.textFieldId.getText());
+			if (id < 0) {
+				JOptionPane.showMessageDialog(this, "Id phải là số nguyên dương");
+				return;
+			}
+		} catch (NumberFormatException e) {
+			JOptionPane.showMessageDialog(this, "Id phải là số");
+			return;
+		}
 
 		TodoList todo = new TodoList(id, title, decription, dueDate, false);
 
