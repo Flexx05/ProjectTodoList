@@ -47,8 +47,13 @@ public class ManageTodoList {
 	}
 
 	public void UpdateTodo(TodoList todo) {
-		this.listTodo.remove(todo);
-		this.listTodo.add(todo);
+		for (int i = 0; i < this.listTodo.size(); i++) {
+			if (listTodo.get(i).getId() == todo.getId()) {
+				listTodo.set(i, todo);
+				return;
+			}
+		}
+		this.CreateTodo(todo);
 	}
 
 	public boolean checkId(int id) {

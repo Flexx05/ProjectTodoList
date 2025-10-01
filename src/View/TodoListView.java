@@ -341,6 +341,7 @@ public class TodoListView extends JFrame {
 					model.setValueAt(todo.getDescription(), i, 2);
 					model.setValueAt(todo.getDueDate().format(formatDate), i, 3);
 					model.setValueAt(todo.isCompleted() ? "Đã hoàn thành" : "Chưa hoàn thành", i, 4);
+					break;
 				}
 			}
 		}
@@ -356,6 +357,10 @@ public class TodoListView extends JFrame {
 	private TodoList ShowTodoSelected() {
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		int rowSelected = table.getSelectedRow();
+		if (rowSelected == -1) {
+			JOptionPane.showMessageDialog(this, "Vui lòng chọn một công việc trước!");
+			return null;
+		}
 		int id = Integer.valueOf(model.getValueAt(rowSelected, 0) + "");
 		String title = model.getValueAt(rowSelected, 1) + "";
 		String description = model.getValueAt(rowSelected, 2) + "";
@@ -512,9 +517,8 @@ public class TodoListView extends JFrame {
 	}
 
 	private void Save(String path) {
-		try {
-			this.list.setFileName(path);
-			FileOutputStream fos = new FileOutputStream(path);
+		this.list.setFileName(path);
+		try (FileOutputStream fos = new FileOutputStream(path)) {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			for (TodoList todo : this.list.getListTodo()) {
 				oos.writeObject(todo);

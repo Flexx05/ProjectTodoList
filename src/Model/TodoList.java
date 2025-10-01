@@ -92,7 +92,7 @@ public class TodoList implements Serializable {
 	@Override
 	public String toString() {
 		return "Task [id=" + id + ", title=" + title + ", description=" + description + ", dueDate=" + dueDate
-				+ ", completed=" + completed + "]";
+				+ ", completed=" + completed + "]\n";
 	}
 
 }
